@@ -1,15 +1,18 @@
 class Document(object):
-    def __init__(self, text, index, topics, all_topics):
+    def __init__(self, text, index, topics, cluster_index, cluster_count):
         # document params
         self.text = text
         self.index = index
         self.topics = topics
-        self.all_topics = all_topics
+        self.cluster_index = cluster_index
         self.words = []
+        self.words_set = []
         self.word_count = 0
         self.word_set_count = 0
         self.n = {}
         self.p = {}
+        self.w = [1 if i == cluster_index else 0 for i in range(0, cluster_count)]
+        self.a = [1 if i == cluster_index else 0 for i in range(0, cluster_count)]
 
         # init
         self.data_process()
@@ -23,6 +26,7 @@ class Document(object):
         self.words = self.words
         self.word_count = len(self.words)
         self.word_set_count = len(self.n.values())
+        self.words_set = self.n.keys()
 
         # p dict
         for word in self.n.keys():
