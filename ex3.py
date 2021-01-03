@@ -1,7 +1,7 @@
 import sys
 from data import Data
 from em_algorithm import ExpectationMaximizationAlgorithm
-
+import numpy as np
 data = Data()
 em_alg = None
 

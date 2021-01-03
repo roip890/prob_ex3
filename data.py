@@ -1,23 +1,37 @@
 from document import Document
 import numpy as np
+import math
 
 
 class Data(object):
     def __init__(self):
+
         self.topics = []
         self.documents = []
         self.clusters = []
-        self.matrix = None
+
+        # vocabulary
+        self.v = []
+        self.v_i = {}
+
+        # max k
+        self.max_k = -math.inf
+
+        # matrices
+        self.p = []
+        self.n = []
+        self.w = []
+        self.a = []
 
     def process_data(self, dev_set_filename, test_set_filename, topics_filename):
         # topics data processing
         self.topics_data_processing(topics_filename)
 
         # dev data processing
-        self.dev_data_processing(test_set_filename)
+        self.dev_data_processing(dev_set_filename)
 
-        # init matrix
-        self.init_matrix()
+        # init matrices
+        self.init_matrices()
 
     def topics_data_processing(self, topics_filename):
         self.topics = []
@@ -29,7 +43,8 @@ class Data(object):
                 self.topics.append(topic)
 
     def dev_data_processing(self, dev_set_filename):
-        self.clusters = [[] for i in range(0, 10)]
+        self.clusters = [[] for i in range(0, len(self.topics))]
+        self.v = []
         with open(dev_set_filename, 'r') as dev_set_file:
             dev_set_file_lines = dev_set_file.readlines()
             for i in range(0, len(dev_set_file_lines), 4):
@@ -38,8 +53,12 @@ class Data(object):
                 document_train_index, document_train_topics = self.document_train_data_processing(document_data[0])
                 document_text = document_data[2].strip()
                 document = Document(document_text, document_train_index, document_train_topics, cluster_index, len(self.topics))
+                self.max_k = max(self.max_k, len(document.words_set))
+                self.v.extend(document.words_set)
                 self.documents.append(document)
                 self.clusters[cluster_index].append(document)
+        self.v = list(set(self.v))
+        self.v_i = {self.v[i]: i for i in range(0, len(self.v))}
 
     def document_train_data_processing(self, document_train_line):
         document_train_line = document_train_line.strip()
@@ -49,5 +68,25 @@ class Data(object):
         document_train_topics = document_train_data[2:] if len(document_train_data) > 3 else []
         return document_train_index, document_train_topics
 
-    def init_matrix(self):
-        self.matrix = np.empty(shape=(len(self.topics), len(self.documents)))
+    def init_matrices(self):
+
+        # alpha
+        self.a = np.zeros(shape=len(self.clusters))
+        for i in range(0, len(self.clusters)):
+            self.a[i] = 1 / len(self.clusters)
+
+        # self.n = np.array([document.words_count_dict for document in self.documents])
+        self.n = np.zeros(shape=(len(self.documents), len(self.v)))
+        for document_index in range(0, len(self.documents)):
+            document = self.documents[document_index]
+            for word in document.words_set:
+                self.n[document_index][self.v_i[word]] = document.words_count_dict[word]
+
+        self.p = np.ones(shape=(len(self.clusters), len(self.v)))
+        # vocabulary_dict = {word: 1 for word in self.v}
+        # self.p = np.array([vocabulary_dict for cluster in self.clusters])
+
+        self.w = np.zeros(shape=(len(self.documents), len(self.clusters)))
+        for document_index in range(0, len(self.documents)):
+            for cluster_index in range(0, len(self.clusters)):
+                self.w[document_index][cluster_index] = 1
