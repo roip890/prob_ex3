@@ -26,6 +26,7 @@ class Data(object):
         self.w = []
         self.a = []
         self.z = []
+        self.z_m = []
         self.k = 10
         self.lamb = 0.01
         self.likelihood = 0
@@ -85,6 +86,7 @@ class Data(object):
 
         # z
         self.z = np.ones(shape=(len(self.documents), len(self.clusters)))
+        self.z_m = np.ones(shape=(len(self.documents), 1))
 
         # self.n = np.array([document.words_count_dict for document in self.documents])
         self.n = np.zeros(shape=(len(self.documents), len(self.v)))

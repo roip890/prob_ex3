@@ -29,8 +29,8 @@ class ExpectationMaximizationAlgorithm(object):
         for t in range(0, len(self.data.documents)):
             # update z_i for this document
             self.data.z[t] = np.array([self.calculate_z_i(t, j) for j in range(len(self.data.clusters))])
-            m = np.max(self.data.z[t])
-            z_i_minus_m = self.data.z[t] - m
+            self.data.z_m[t] = np.max(self.data.z[t])
+            z_i_minus_m = self.data.z[t] - self.data.z_m[t]
             w_t_i_denominator = sum([math.pow(math.e, z_i) for z_i in z_i_minus_m if z_i > - self.data.k])
             for i in range(0, len(self.data.clusters)):
                 self.data.w[t][i] = 0 if z_i_minus_m[i] < - self.data.k else math.pow(math.e, z_i_minus_m[i]) / w_t_i_denominator
@@ -59,5 +59,7 @@ class ExpectationMaximizationAlgorithm(object):
         p_i_k_sum = np.sum([math.log(self.data.p[i][self.data.v_i[k]]) * self.data.n[t][self.data.v_i[k]] for k in self.data.documents[t].words_set])
         return ln_alpha_i + p_i_k_sum
 
-    def calculate_likelihood(self):
-
+    # def calculate_likelihood(self):
+    #     res = 0
+    #     for t in range(0, len(self.data.documents)):
+    #         m_t =
