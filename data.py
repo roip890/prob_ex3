@@ -3,6 +3,7 @@ import numpy as np
 import math
 import time
 
+
 class Data(object):
     def __init__(self):
 
@@ -28,9 +29,8 @@ class Data(object):
         self.z = []
         self.z_m = []
         self.k = 10
-        self.lamb = 0.01
-        self.likelihood = 0
-        self.eps = math.pow(math.e, -9)
+        self.lamb = 0.99
+        self.eps = math.pow(math.e, -5)
 
     def process_data(self, dev_set_filename, test_set_filename, topics_filename):
         # topics data processing
@@ -94,9 +94,10 @@ class Data(object):
             document = self.documents[document_index]
             for word in document.words_set:
                 self.n[document_index][self.v_i[word]] = document.words_count_dict[word]
-        self.n_t = np.zeros(shape=(len(self.documents), len(self.v)))
-        for cluster_index in range(0, len(self.clusters)):
-            self.n_t[cluster_index] = self.n.sum(axis=0)
+        # self.n_t = np.zeros(shape=(len(self.documents), 1))
+        self.n_t = self.n.sum(axis=1)
+        # for document_index in range(0, len(self.documents)):
+        #     self.n_t[document_index] = self.n.sum(axis=0)
 
         self.p = np.ones(shape=(len(self.clusters), len(self.v)))
         # vocabulary_dict = {word: 1 for word in self.v}
@@ -105,4 +106,7 @@ class Data(object):
         self.w = np.zeros(shape=(len(self.documents), len(self.clusters)))
         for document_index in range(0, len(self.documents)):
             for cluster_index in range(0, len(self.clusters)):
-                self.w[document_index][cluster_index] = 1
+                if self.documents[document_index].cluster_index == cluster_index:
+                    self.w[document_index][cluster_index] = 2 / (len(self.clusters) + 1)
+                else:
+                    self.w[document_index][cluster_index] = 1 / (len(self.clusters) + 1)

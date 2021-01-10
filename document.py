@@ -14,10 +14,6 @@ class Document(object):
         self.words_count_dict = {}
         self.words_likelihood_dict = {}
 
-        # self.p = {}
-        # self.w = [1 if i == cluster_index else 0 for i in range(0, cluster_count)]
-        # self.a = [1 if i == cluster_index else 0 for i in range(0, cluster_count)]
-
         # init
         self.data_process()
 

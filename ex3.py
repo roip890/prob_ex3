@@ -2,6 +2,8 @@ import sys
 from data import Data
 from em_algorithm import ExpectationMaximizationAlgorithm
 import numpy as np
+import math
+
 data = Data()
 em_alg = None
 
@@ -22,6 +24,7 @@ def start():
     generate_data()
 
     em_alg = ExpectationMaximizationAlgorithm(data)
+    em_alg.start_algorithm()
 
 # start programs
 start()
