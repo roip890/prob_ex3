@@ -10,6 +10,7 @@ class Data(object):
         self.start_time = time.time()
 
         self.topics = []
+        self.topics_dict = {}
         self.documents = []
         self.clusters = []
 
@@ -50,6 +51,7 @@ class Data(object):
                 topic_data = topics_file_lines[i:i + 2]
                 topic = topic_data[0].strip()
                 self.topics.append(topic)
+            self.topics_dict = {self.topics[topic_index]: topic_index for topic_index in range(0, len(self.topics))}
 
     def dev_data_processing(self, dev_set_filename):
         self.clusters = [[] for i in range(0, len(self.topics))]
