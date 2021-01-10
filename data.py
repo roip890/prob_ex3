@@ -22,10 +22,13 @@ class Data(object):
         # matrices
         self.p = []
         self.n = []
+        self.n_t = []
         self.w = []
         self.a = []
         self.z = []
         self.k = 10
+        self.lamb = 0.01
+        self.likelihood = 0
         self.eps = math.pow(math.e, -9)
 
     def process_data(self, dev_set_filename, test_set_filename, topics_filename):
@@ -89,6 +92,9 @@ class Data(object):
             document = self.documents[document_index]
             for word in document.words_set:
                 self.n[document_index][self.v_i[word]] = document.words_count_dict[word]
+        self.n_t = np.zeros(shape=(len(self.documents), len(self.v)))
+        for cluster_index in range(0, len(self.clusters)):
+            self.n_t[cluster_index] = self.n.sum(axis=0)
 
         self.p = np.ones(shape=(len(self.clusters), len(self.v)))
         # vocabulary_dict = {word: 1 for word in self.v}

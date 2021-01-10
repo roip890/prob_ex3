@@ -30,36 +30,24 @@ class ExpectationMaximizationAlgorithm(object):
             # update z_i for this document
             self.data.z[t] = np.array([self.calculate_z_i(t, j) for j in range(len(self.data.clusters))])
             m = np.max(self.data.z[t])
-            self.data.z[t] = np.array([0 if z_i - m < self.data.k else z_i - m for z_i in self.data.z[t]])
-            w_t_i_denominator = sum([math.pow(math.e, z_i) for z_i in self.data.z[t] if z_i != 0])
+            z_i_minus_m = self.data.z[t] - m
+            w_t_i_denominator = sum([math.pow(math.e, z_i) for z_i in z_i_minus_m if z_i > - self.data.k])
             for i in range(0, len(self.data.clusters)):
-                self.data.w[t][i] = 0 if self.data.z[t][i] == 0 else math.pow(math.e, self.data.z[t][i]) / w_t_i_denominator
+                self.data.w[t][i] = 0 if z_i_minus_m[i] < - self.data.k else math.pow(math.e, z_i_minus_m[i]) / w_t_i_denominator
 
     # maximization step
     def maximization(self):
         n = len(self.data.documents)
+        lamb = self.data.lamb
+        lamb_v = self.data.lamb * sum(self.data.v)
         for i in range(0, len(self.data.clusters)):
             self.data.a[i] = self.calculate_alpha_i(i, n)
-            #p_i_k_denominator = self.calculate_p_i_k_denominator(i)
-            p_i_k_denominator = 0
-            for k in self.data.v:
-                p_i_k_numerator = self.calculate_p_i_k_numerator(i, k)
-                p_i_k_denominator += p_i_k_numerator
-                self.data.p[i][self.data.v_i[k]] = p_i_k_numerator
-            self.data.p[i] /= p_i_k_denominator
+            p_numerator = self.data.w.T.dot(self.data.n) + lamb
+            p_denominator = self.data.w.T.dot(self.data.n_t) + lamb_v
+            self.data.p = p_numerator / p_denominator
 
     def calculate_alpha_i(self, i, n):
         return 1 / n * (sum([self.data.w[t][i] for t in range(0, len(self.data.documents))]))
-
-    def calculate_p_i_k_numerator(self, i, k):
-        w_t_arr = self.data.w[:, i]
-        n_t_k = self.data.n[:, self.data.v_i[k]]
-        return sum(np.multiply(n_t_k, w_t_arr))
-
-    def calculate_p_i_k_denominator(self, i):
-        n_t_arr = self.data.n.sum(axis=1)
-        w_t_arr = self.data.w[:, i]
-        return sum(np.multiply(n_t_arr, w_t_arr))
 
     def normalize_alpha(self):
         new_alphas = [max(alpha, self.data.eps) for alpha in self.data.a]
@@ -70,3 +58,6 @@ class ExpectationMaximizationAlgorithm(object):
         ln_alpha_i = math.log(self.data.a[i])
         p_i_k_sum = np.sum([math.log(self.data.p[i][self.data.v_i[k]]) * self.data.n[t][self.data.v_i[k]] for k in self.data.documents[t].words_set])
         return ln_alpha_i + p_i_k_sum
+
+    def calculate_likelihood(self):
+
