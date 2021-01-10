@@ -9,8 +9,6 @@ class ExpectationMaximizationAlgorithm(object):
     def __init__(self, data):
         # algorithm params
         self.data = data
-        self.alphas = [0 for i in range(0, len(data.clusters))]
-
         print('start', time.time() - self.data.start_time)
         print('expectation - start', time.time() - self.data.start_time)
         self.expectation()
@@ -41,11 +39,14 @@ class ExpectationMaximizationAlgorithm(object):
     def maximization(self):
         n = len(self.data.documents)
         for i in range(0, len(self.data.clusters)):
-            self.alphas[i] = self.calculate_alpha_i(i, n)
-            p_i_k_denominator = self.calculate_p_i_k_denominator(i)
+            self.data.a[i] = self.calculate_alpha_i(i, n)
+            #p_i_k_denominator = self.calculate_p_i_k_denominator(i)
+            p_i_k_denominator = 0
             for k in self.data.v:
                 p_i_k_numerator = self.calculate_p_i_k_numerator(i, k)
-                self.data.p[i][self.data.v_i[k]] = p_i_k_numerator / p_i_k_denominator
+                p_i_k_denominator += p_i_k_numerator
+                self.data.p[i][self.data.v_i[k]] = p_i_k_numerator
+            self.data.p[i] /= p_i_k_denominator
 
     def calculate_alpha_i(self, i, n):
         return 1 / n * (sum([self.data.w[t][i] for t in range(0, len(self.data.documents))]))
