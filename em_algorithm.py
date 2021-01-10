@@ -2,7 +2,7 @@ from data import Data
 from document import Document
 import math
 import numpy as np
-
+import time
 
 class ExpectationMaximizationAlgorithm(object):
 
@@ -11,38 +11,31 @@ class ExpectationMaximizationAlgorithm(object):
         self.data = data
         self.alphas = [0 for i in range(0, len(data.clusters))]
 
-        print('start')
-        print('expectation - start')
+        print('start', time.time() - self.data.start_time)
+        print('expectation - start', time.time() - self.data.start_time)
         self.expectation()
-        print('expectation - end')
-        print('maximization - start')
+        print('expectation - end', time.time() - self.data.start_time)
+        print('maximization - start', time.time() - self.data.start_time)
         self.maximization()
-        print('maximization - end')
-        print('expectation - start')
+        print('maximization - end', time.time() - self.data.start_time)
+        print('expectation - start', time.time() - self.data.start_time)
         self.expectation()
-        print('expectation - end')
-        print('maximization - start')
+        print('expectation - end', time.time() - self.data.start_time)
+        print('maximization - start', time.time() - self.data.start_time)
         self.maximization()
-        print('maximization - end')
+        print('maximization - end', time.time() - self.data.start_time)
 
     # expectation step
     def expectation(self):
+        self.normalize_alpha()
         for t in range(0, len(self.data.documents)):
-            w_t_i_denominator = self.calculate_w_t_i_denominator(t)
+            # update z_i for this document
+            self.data.z[t] = np.array([self.calculate_z_i(t, j) for j in range(len(self.data.clusters))])
+            m = np.max(self.data.z[t])
+            self.data.z[t] = np.array([0 if z_i - m < self.data.k else z_i - m for z_i in self.data.z[t]])
+            w_t_i_denominator = sum([math.pow(math.e, z_i) for z_i in self.data.z[t] if z_i != 0])
             for i in range(0, len(self.data.clusters)):
-                w_t_i_numerator = self.calculate_w_t_i_numerator(t, i)
-                self.data.w[t][i] = w_t_i_numerator / w_t_i_denominator
-
-    def calculate_w_t_i_numerator(self, t, i):
-        return self.calculate_alpha_p_i_prod(t, i)
-
-    def calculate_w_t_i_denominator(self, t):
-        return sum([self.calculate_alpha_p_i_prod(t, j) for j in range(0, len(self.data.clusters))])
-
-    def calculate_alpha_p_i_prod(self, t, i):
-        alpha_i = self.alphas[i]
-        p_i_prod = np.prod([math.pow(self.data.p[i][self.data.v_i[k]], self.data.n[t][self.data.v_i[k]]) for k in self.data.documents[t].words_set])
-        return alpha_i * p_i_prod
+                self.data.w[t][i] = 0 if self.data.z[t][i] == 0 else math.pow(math.e, self.data.z[t][i]) / w_t_i_denominator
 
     # maximization step
     def maximization(self):
@@ -66,3 +59,13 @@ class ExpectationMaximizationAlgorithm(object):
         n_t_arr = self.data.n.sum(axis=1)
         w_t_arr = self.data.w[:, i]
         return sum(np.multiply(n_t_arr, w_t_arr))
+
+    def normalize_alpha(self):
+        new_alphas = [max(alpha, self.data.eps) for alpha in self.data.a]
+        alphas_sum = sum(new_alphas)
+        self.data.a = [alpha / alphas_sum for alpha in new_alphas]
+
+    def calculate_z_i(self, t, i):
+        ln_alpha_i = math.log(self.data.a[i])
+        p_i_k_sum = np.sum([math.log(self.data.p[i][self.data.v_i[k]]) * self.data.n[t][self.data.v_i[k]] for k in self.data.documents[t].words_set])
+        return ln_alpha_i + p_i_k_sum

@@ -1,10 +1,12 @@
 from document import Document
 import numpy as np
 import math
-
+import time
 
 class Data(object):
     def __init__(self):
+
+        self.start_time = time.time()
 
         self.topics = []
         self.documents = []
@@ -22,6 +24,9 @@ class Data(object):
         self.n = []
         self.w = []
         self.a = []
+        self.z = []
+        self.k = 10
+        self.eps = math.pow(math.e, -9)
 
     def process_data(self, dev_set_filename, test_set_filename, topics_filename):
         # topics data processing
@@ -74,6 +79,9 @@ class Data(object):
         self.a = np.zeros(shape=len(self.clusters))
         for i in range(0, len(self.clusters)):
             self.a[i] = 1 / len(self.clusters)
+
+        # z
+        self.z = np.ones(shape=(len(self.documents), len(self.clusters)))
 
         # self.n = np.array([document.words_count_dict for document in self.documents])
         self.n = np.zeros(shape=(len(self.documents), len(self.v)))
