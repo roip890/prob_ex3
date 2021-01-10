@@ -62,8 +62,9 @@ class Data(object):
                 cluster_index = int((i / 4) % 9)
                 document_data = dev_set_file_lines[i:i + 4]
                 document_train_index, document_train_topics = self.document_train_data_processing(document_data[0])
+                document_train_topics_index = [self.topics_dict[topic] for topic in document_train_topics if topic in self.topics]
                 document_text = document_data[2].strip()
-                document = Document(document_text, document_train_index, document_train_topics, cluster_index, len(self.topics))
+                document = Document(document_text, document_train_index, document_train_topics, document_train_topics_index, cluster_index, len(self.topics))
                 self.max_k = max(self.max_k, len(document.words_set))
                 self.v.extend(document.words_set)
                 self.documents.append(document)
