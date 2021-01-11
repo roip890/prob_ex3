@@ -10,11 +10,17 @@ from functools import reduce
 class Data(object):
     def __init__(self):
 
+        # calculate start time for debugging
         self.start_time = time.time()
 
+        # topics
         self.topics = []
         self.topics_dict = {}
+
+        # documents
         self.documents = []
+
+        # cluster
         self.clusters = []
 
         # vocabulary
@@ -79,6 +85,7 @@ class Data(object):
         self.v = list(self.v_dict.keys())
         self.v_i = {self.v[i]: i for i in range(0, len(self.v))}
 
+    # process train row per document
     def document_train_data_processing(self, document_train_line):
         document_train_line = document_train_line.strip()
         document_train_line = document_train_line[1:len(document_train_line) - 1]
@@ -87,6 +94,7 @@ class Data(object):
         document_train_topics = document_train_data[2:] if len(document_train_data) > 2 else []
         return document_train_index, document_train_topics
 
+    # init all matrices of the algorithm data
     def init_matrices(self):
 
         # alpha
@@ -98,23 +106,20 @@ class Data(object):
         self.z = np.ones(shape=(len(self.documents), len(self.clusters)))
         self.z_m = np.ones(shape=(len(self.documents), 1))
 
-        # self.n = np.array([document.words_count_dict for document in self.documents])
+        # n
         self.n = np.zeros(shape=(len(self.documents), len(self.v)))
         for document_index in range(0, len(self.documents)):
             document = self.documents[document_index]
             for word in document.words_set:
                 if word in self.v:
-                    # self.n[document_index][self.v_i[word]] = document.words_count_dict[word]
                     self.n[document_index][self.v_i[word]] = document.words_count_dict.get(word, 0)
-        # self.n_t = np.zeros(shape=(len(self.documents), 1))
+
+        # nt
         self.n_t = self.n.sum(axis=1)
-        # for document_index in range(0, len(self.documents)):
-        #     self.n_t[document_index] = self.n.sum(axis=0)
 
         self.p = np.ones(shape=(len(self.clusters), len(self.v)))
-        # vocabulary_dict = {word: 1 for word in self.v}
-        # self.p = np.array([vocabulary_dict for cluster in self.clusters])
 
+        # w
         self.w = np.zeros(shape=(len(self.documents), len(self.clusters)))
         for document_index in range(0, len(self.documents)):
             for cluster_index in range(0, len(self.clusters)):

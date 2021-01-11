@@ -20,11 +20,15 @@ def generate_data():
 
 # start
 def start():
+    global data
+    global em_alg
+
     # generate data
     generate_data()
 
     em_alg = ExpectationMaximizationAlgorithm(data)
     em_alg.start_algorithm()
+
 
 # start programs
 start()

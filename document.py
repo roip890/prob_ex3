@@ -1,5 +1,6 @@
 class Document(object):
     def __init__(self, text, index, topics, topics_index, cluster_index, cluster_count):
+
         # document params
         self.text = text
         self.index = index
