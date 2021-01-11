@@ -1,5 +1,5 @@
-#Itay Yair 308204239
-
+# Itay Yair 308204239
+# Roi Peretz 203258041
 import sys
 from data import Data
 from em_algorithm import ExpectationMaximizationAlgorithm
