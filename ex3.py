@@ -1,3 +1,5 @@
+#Itay Yair 308204239
+
 import sys
 from data import Data
 from em_algorithm import ExpectationMaximizationAlgorithm

@@ -1,3 +1,5 @@
+#Itay Yair 308204239
+
 class Document(object):
     def __init__(self, text, index, topics, topics_index, cluster_index, cluster_count):
 
