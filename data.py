@@ -2,6 +2,9 @@ from document import Document
 import numpy as np
 import math
 import time
+from collections import Counter
+from operator import add
+from functools import reduce
 
 
 class Data(object):
@@ -16,6 +19,7 @@ class Data(object):
 
         # vocabulary
         self.v = []
+        self.v_dict = {}
         self.v_i = {}
 
         # max k
@@ -69,7 +73,10 @@ class Data(object):
                 self.v.extend(document.words_set)
                 self.documents.append(document)
                 self.clusters[cluster_index].append(document)
-        self.v = list(set(self.v))
+                self.v_dict = Counter(self.v_dict) + Counter(document.words_count_dict)
+        self.v_dict = {k: v for k, v in self.v_dict.items() if v > 3}
+        # self.v = list(set(self.v))
+        self.v = list(self.v_dict.keys())
         self.v_i = {self.v[i]: i for i in range(0, len(self.v))}
 
     def document_train_data_processing(self, document_train_line):
@@ -96,7 +103,9 @@ class Data(object):
         for document_index in range(0, len(self.documents)):
             document = self.documents[document_index]
             for word in document.words_set:
-                self.n[document_index][self.v_i[word]] = document.words_count_dict[word]
+                if word in self.v:
+                    # self.n[document_index][self.v_i[word]] = document.words_count_dict[word]
+                    self.n[document_index][self.v_i[word]] = document.words_count_dict.get(word, 0)
         # self.n_t = np.zeros(shape=(len(self.documents), 1))
         self.n_t = self.n.sum(axis=1)
         # for document_index in range(0, len(self.documents)):

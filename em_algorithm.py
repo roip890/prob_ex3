@@ -57,7 +57,7 @@ class ExpectationMaximizationAlgorithm(object):
             likelihood += self.data.z_m[t][0] + math.log(w_t_i_denominator)
         print('likelihood', likelihood)
         self.likelihood_values.append(likelihood)
-        self.perplexity_values.append(math.pow(2, (-1/sum(self.data.n_t)) * likelihood))
+        self.perplexity_values.append(math.pow(2, (-1 / sum(self.data.n_t)) * likelihood))
 
     # maximization step
     def maximization(self):
@@ -81,7 +81,7 @@ class ExpectationMaximizationAlgorithm(object):
 
     def calculate_z_i(self, t, i):
         ln_alpha_i = math.log(self.data.a[i])
-        p_i_k_sum = np.sum([math.log(self.data.p[i][self.data.v_i[k]]) * self.data.n[t][self.data.v_i[k]] for k in self.data.documents[t].words_set])
+        p_i_k_sum = np.sum([math.log(self.data.p[i][self.data.v_i[k]]) * self.data.n[t][self.data.v_i[k]] for k in self.data.documents[t].words_set if k in self.data.v_i])
         return ln_alpha_i + p_i_k_sum
 
     def plot(self, y_values, x_values, y_label, x_label):
@@ -89,6 +89,7 @@ class ExpectationMaximizationAlgorithm(object):
         plt.ylabel(y_label)
         plt.xlabel(x_label)
         plt.show()
+
     def confusionMatrix(self):
         matrix = np.zeros(shape=(len(self.data.clusters), len(self.data.clusters) + 1))
         for i in range(len(self.data.w)):
