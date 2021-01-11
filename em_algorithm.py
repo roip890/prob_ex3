@@ -20,27 +20,17 @@ class ExpectationMaximizationAlgorithm(object):
         # print('start', time.time() - self.data.start_time)
 
         # run algorithm
-        for i in range(0, 20):
+        i = 0
+        while True:
             self.maximization()
             self.expectation()
-
-        # # save data
-        # with open('data.pickle', 'wb') as data_file:
-        #     pickle.dump(self.data, data_file, protocol=pickle.HIGHEST_PROTOCOL)
-        #
-        # # fetch data
-        # with open('data.pickle', 'rb') as data_file:
-        #     self.data = pickle.load(data_file)
-
+            if i > 1 and 1 - (self.likelihood_values[i] / self.likelihood_values[i-1]) < 0.00001:
+                break
+            i += 1
         # self.plot(self.likelihood_values[1:], [i for i in range(0, len(self.likelihood_values[1:]))], 'likelihood',
         #           'iterations')
-        print(self.perplexity_values[1:])
-        self.plot(self.perplexity_values[1:], [i for i in range(0, len(self.perplexity_values[1:]))], 'perplexity', 'iterations')
+        # self.plot(self.perplexity_values[1:], [i for i in range(0, len(self.perplexity_values[1:]))], 'perplexity', 'iterations')
         matrix = self.confusionMatrix()
-        for row in matrix.T:
-            for i in row:
-                print(i)
-            print('\n')
 
     # expectation step
     def expectation(self):

@@ -34,7 +34,7 @@ class Data(object):
         self.z = []
         self.z_m = []
         self.k = 10
-        self.lamb = 0.75
+        self.lamb = 0.99
         self.eps = math.pow(math.e, -8)
 
     def process_data(self, dev_set_filename, test_set_filename, topics_filename):
