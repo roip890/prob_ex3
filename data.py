@@ -1,3 +1,5 @@
+#Itay Yair 308204239
+
 from document import Document
 import numpy as np
 import math
