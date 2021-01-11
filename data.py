@@ -30,8 +30,8 @@ class Data(object):
         self.z = []
         self.z_m = []
         self.k = 10
-        self.lamb = 0.99
-        self.eps = math.pow(math.e, -5)
+        self.lamb = 0.75
+        self.eps = math.pow(math.e, -8)
 
     def process_data(self, dev_set_filename, test_set_filename, topics_filename):
         # topics data processing
@@ -77,7 +77,7 @@ class Data(object):
         document_train_line = document_train_line[1:len(document_train_line) - 1]
         document_train_data = document_train_line.split('\t')
         document_train_index = document_train_data[1]
-        document_train_topics = document_train_data[2:] if len(document_train_data) > 3 else []
+        document_train_topics = document_train_data[2:] if len(document_train_data) > 2 else []
         return document_train_index, document_train_topics
 
     def init_matrices(self):

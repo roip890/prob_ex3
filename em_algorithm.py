@@ -4,6 +4,7 @@ import math
 import numpy as np
 import time
 import matplotlib.pyplot as plt
+import pickle
 
 
 class ExpectationMaximizationAlgorithm(object):
@@ -15,12 +16,31 @@ class ExpectationMaximizationAlgorithm(object):
         self.perplexity_values = []
 
     def start_algorithm(self):
+        # calculate time
         # print('start', time.time() - self.data.start_time)
+
+        # run algorithm
         for i in range(0, 20):
             self.maximization()
             self.expectation()
-        self.plot(self.likelihood_values[1:], [i for i in range(0, len(self.likelihood_values[1:]))], 'likelihood', 'iterations')
-        # self.plot(self.perplexity_values[1:], [i for i in range(0, len(self.perplexity_values[1:]))], 'perplexity', 'iterations')
+
+        # # save data
+        # with open('data.pickle', 'wb') as data_file:
+        #     pickle.dump(self.data, data_file, protocol=pickle.HIGHEST_PROTOCOL)
+        #
+        # # fetch data
+        # with open('data.pickle', 'rb') as data_file:
+        #     self.data = pickle.load(data_file)
+
+        # self.plot(self.likelihood_values[1:], [i for i in range(0, len(self.likelihood_values[1:]))], 'likelihood',
+        #           'iterations')
+        print(self.perplexity_values[1:])
+        self.plot(self.perplexity_values[1:], [i for i in range(0, len(self.perplexity_values[1:]))], 'perplexity', 'iterations')
+        matrix = self.confusionMatrix()
+        for row in matrix.T:
+            for i in row:
+                print(i)
+            print('\n')
 
     # expectation step
     def expectation(self):
@@ -69,3 +89,18 @@ class ExpectationMaximizationAlgorithm(object):
         plt.ylabel(y_label)
         plt.xlabel(x_label)
         plt.show()
+    def confusionMatrix(self):
+        matrix = np.zeros(shape=(len(self.data.clusters), len(self.data.clusters) + 1))
+        for i in range(len(self.data.w)):
+            max_idx = np.argmax(self.data.w[i])
+            topics = self.data.documents[i].topics_index
+            for j in topics:
+                matrix[max_idx][j] += 1
+            matrix[max_idx][9] += 1
+        matrix = matrix[matrix[:, 9].argsort()][::-1]
+        classified = 0
+        for row in matrix:
+            classified += max(row[0:9])
+        accurecy = classified/len(self.data.w)
+        print(accurecy)
+        return matrix
